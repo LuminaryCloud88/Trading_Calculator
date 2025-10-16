@@ -1,0 +1,1 @@
+# Used for reading generic CSV's of trades so no manual input is required
