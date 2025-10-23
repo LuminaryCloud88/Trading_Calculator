@@ -3,10 +3,9 @@
 # Returns PnL % and $ and also R:R ratios
 # Adds to list or Key-Value pair to show total calculations at the end
 from user_inputs import inputs
-from calculations import calculate_pnl
+from calculations import *
 def main():
     calculate_pnl(*inputs())
-
 
 if __name__ == "__main__":
     main()

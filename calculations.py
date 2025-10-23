@@ -4,19 +4,24 @@
 # Adds to list or Key-Value pair to show total calculations at the end
 from user_inputs import inputs
 
-def calculate_pnl(capital, fees, entry, exit, direction, leverage):
-    controlled_capital = float(capital * leverage)
-    calculated_fees = float(controlled_capital * fees)
+def calculate_pnl(capital, fees, entry, exit, direction, leverage, risk):
+    position_size = float(capital * leverage)
+    calculated_fees = float(position_size * fees)
     if direction == "long":
-        pnl = float((exit - entry)*(controlled_capital / entry))
+        pnl = float((exit - entry)*(position_size / entry))
     elif direction == "short":
-        pnl = float((entry - exit)*(controlled_capital / entry))
+        pnl = float((entry - exit)*(position_size / entry))
     
     pnl -= calculated_fees
+    r_multiple = calculate_r_multiples(pnl, risk)
 
+    print("\n --- Your Trade Summary ---")
+    print(f" Your position size is: {position_size:.2f}")
     print(f" PnL: ${pnl:.2f}")
+    print(f" Risk:Reward Ratio is: {r_multiple:.2f}")
 
-    return pnl, controlled_capital
+    return pnl, position_size
 
-#def r_multiples(entry, exit, controlled_capital, direction):
-#    r_multiple = exit
+def calculate_r_multiples(pnl, risk):
+    r_multiple = pnl / risk
+    return r_multiple
