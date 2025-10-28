@@ -11,12 +11,15 @@ def inputs():
         exit = round(float(input("Enter your exit price: ")), 2)
         direction = input("Enter either long or short: ").lower()
         leverage = float(input("Enter leverage here. If none was used, simply type 1: "))
-        risk_input = float(input("Enter risk (if no stop loss, position size will be used): $"))
-
-        if risk_input == "":
-            risk = capital * leverage
+        risk_input_str = input("Enter risk (if no stop loss, position size will be used): $")
+        
+        if risk_input_str.strip() == "":
+            risk = float(capital * leverage)
         else:
-            risk = float(risk_input)
+            try:
+                risk = float(risk_input_str)
+            except ValueError:
+                print("Invalid input — please enter a number.")
 
         print("\n --- Your Trade Summary ---")
         print(f">Capitial: ${capital}")
