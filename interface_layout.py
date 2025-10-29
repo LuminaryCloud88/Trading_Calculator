@@ -39,7 +39,7 @@ def submit_data(capital_entry, fees_entry, leverage_entry, entry_entry, exit_ent
         ttk.Label(results_Window, text=f"R-Multiple: {r_multiple:.2f}").pack(pady=5)
 
         ttk.Button(results_Window, text="Close", command=results_Window.destroy).pack(pady=15)
-        print("Returning:", pnl, position_size, r_multiple)
+        
     except ValueError as e:
         messagebox.showerror("Invalid Input", f"Error: {e}")
 
