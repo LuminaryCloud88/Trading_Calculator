@@ -1,28 +1,50 @@
 #Graphical User Interface to input data
 # TO-DO make it so you can only enter certain values and handle errors that come with it
-from tkinter import ttk
+# Add secondary window that displays output instead of displaying in the terminal and save button
+from tkinter import ttk, messagebox
 import tkinter
+from calculations import *
 
 def submit_data():
-    capital = capital_entry.get()
-    fees = fees_entry.get()
-    entry = entry_entry.get()   
-    exit = exit_entry.get()
-    direction = direction_combobox.get()
-    leverage = leverage_entry.get()
-    risk_input_str = risk_label_entry.get()
+    try:
+        capital = float(capital_entry.get())
+        fees = float(fees_entry.get())
+        entry = float(entry_entry.get())  
+        exit = float(exit_entry.get())
+        direction = direction_combobox.get().lower()
+        leverage = float(leverage_entry.get())
+        risk_input_str = risk_label_entry.get()
 
-def validate_float():
-    if new_value == "":
-        return True
-    try: 
-        float(new_value)
-        return True
-    except ValueError:
-        return False
+        if risk_input_str == "":
+            risk = float(capital * leverage)
+        else:
+            risk = float(risk_input_str)
+            if risk <= 0:
+                raise ValueError("Risk must be greater than zero.")
+        
+        if direction not in ["long", "short"]:
+            raise ValueError("Direction must be 'long' or 'short'.")
+            
+
+        pnl, position_size, r_multiple = calculate_pnl(
+            capital, fees, entry, exit, direction, leverage, risk
+        )
+
+        results_Window = tkinter.Toplevel(window)
+        results_Window.title("Trade Summary")
+
+        ttk.Label(results_Window, text="--- Your Trade Summary ---", font=("Arial", 14, "bold")).pack(pady=10)
+        ttk.Label(results_Window, text=f"Position Size: ${position_size:,.2f}").pack(pady=5)
+        ttk.Label(results_Window, text=f"PnL: ${pnl:,.2f}").pack(pady=5)
+        ttk.Label(results_Window, text=f"R-Multiple: {r_multiple:.2f}").pack(pady=5)
+
+        ttk.Button(results_Window, text="Close", command=results_Window.destroy).pack(pady=15)
+        print("Returning:", pnl, position_size, r_multiple)
+    except ValueError as e:
+        messagebox.showerror("Invalid Input", f"Error: {e}")
 
 window = tkinter.Tk()
-window.title("Trading Entries") #Use App Name Later?
+window.title("Trading Entry") #Use App Name Later?
 
 frame = tkinter.Frame(window)
 frame.pack()
