@@ -16,11 +16,6 @@ def calculate_pnl(capital, fees, entry, exit, direction, leverage, risk):
     pnl -= calculated_fees
     r_multiple = calculate_r_multiples(pnl, risk)
 
-    print("\n --- Your Trade Summary ---")
-    print(f" Your position size is: {position_size:.2f}")
-    print(f" PnL: ${pnl:.2f}")
-    print(f" Risk:Reward Ratio is: {r_multiple:.2f}")
-
     return pnl, position_size, r_multiple
 
 def calculate_r_multiples(pnl, risk):
