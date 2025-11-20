@@ -1,23 +1,33 @@
 # A Trading Calculator That Takes Inputs from the User 
 # Such as Capital, Fees, Entry, Exit Prices, Direction, Risk and Leverage
 # Returns PnL % and $ and also R:R ratios
-# Adds to list or Key-Value pair to show total calculations at the end
 # Add Units held (capital/entry)
 from user_inputs import inputs
+from constants import Trade
 
-def calculate_pnl(capital, fees, entry, exit, direction, leverage, risk):
-    position_size = float(capital * leverage)
-    calculated_fees = float(position_size * fees)
-    if direction == "long":
-        pnl = float((exit - entry)*(position_size / entry))
-    elif direction == "short":
-        pnl = float((entry - exit)*(position_size / entry))
+def basic_metrics(trade: Trade) -> Trade:
+    
+    position_size = float(trade.capital * trade.leverage)
+    calculated_fees = float(position_size * trade.fees)
+    if trade.direction == "long":
+        pnl = float((trade.exit - trade.entry)*(position_size / trade.entry))
+    elif trade.direction == "short":
+        pnl = float((trade.entry - trade.exit)*(position_size / trade.entry))
     
     pnl -= calculated_fees
-    r_multiple = calculate_r_multiples(pnl, risk)
+    r_multiple = calculate_r_multiples(pnl, trade.risk)
 
-    return pnl, position_size, r_multiple
+    trade.position_size = position_size
+    trade.pnl = pnl
+    trade.r_multiple = r_multiple
 
-def calculate_r_multiples(pnl, risk):
-    r_multiple = pnl / risk
-    return r_multiple
+    if trade.subscribed == True:
+        calculate_premium_metrics(trade)
+
+    return trade
+
+def calculate_r_multiples(pnl: float, risk: float) -> float:
+    return pnl / risk
+
+# Basic metrics with units and pnl ratio
+# def calculate_premium_metrics(trade: Trade):

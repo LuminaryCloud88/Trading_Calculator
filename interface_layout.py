@@ -1,9 +1,14 @@
-#Graphical User Interface to input data
+# Graphical User Interface to input data
 # TO-DO make it so you can only enter certain values and handle errors that come with it
 # Add secondary window that displays output instead of displaying in the terminal and save button
+# Possibly add a trade set-up section, so you know what you entered on: break-out , contiuation etc. 
+# Keep track of metrics for those?
+# Add 'trade' dictionary to hold all the values of a single trade
 from tkinter import ttk, messagebox
 import tkinter
 from calculations import *
+from constants import Trade, help_text
+
 
 def submit_data(capital_entry, fees_entry, leverage_entry, entry_entry, exit_entry, direction_combobox, risk_label_entry):
     try:
@@ -25,25 +30,32 @@ def submit_data(capital_entry, fees_entry, leverage_entry, entry_entry, exit_ent
         if direction not in ["long", "short"]:
             raise ValueError("Direction must be 'long' or 'short'.")
             
-
-        pnl, position_size, r_multiple = calculate_pnl(
-            capital, fees, entry, exit, direction, leverage, risk
+        trade = Trade(
+            capital=capital,
+            fees=fees,
+            entry=entry,
+            exit=exit,
+            direction=direction,
+            leverage=leverage,
+            risk=risk
         )
 
-        results_Window = tkinter.Toplevel()
-        results_Window.title("Trade Summary")
+        trade = basic_metrics(trade)
 
-        ttk.Label(results_Window, text="--- Your Trade Summary ---", font=("Arial", 14, "bold")).pack(pady=10)
-        ttk.Label(results_Window, text=f"Position Size: ${position_size:,.2f}").pack(pady=5)
-        ttk.Label(results_Window, text=f"PnL: ${pnl:,.2f}").pack(pady=5)
-        ttk.Label(results_Window, text=f"R-Multiple: {r_multiple:.2f}").pack(pady=5)
+        results_window = tkinter.Toplevel()
+        results_window.title("Trade Summary")
 
-        ttk.Button(results_Window, text="Close", command=results_Window.destroy).pack(pady=15)
-        
+        ttk.Label(results_window, text="--- Your Trade Summary ---", font=("Arial", 14, "bold")).pack(pady=10)
+        ttk.Label(results_window, text=f"Position Size: ${trade.position_size:,.2f}").pack(pady=5)
+        ttk.Label(results_window, text=f"PnL: ${trade.pnl:,.2f}").pack(pady=5)
+        ttk.Label(results_window, text=f"R-Multiple: {trade.r_multiple:.2f}").pack(pady=5)
+
+        ttk.Button(results_window, text="Close", command=results_window.destroy).pack(pady=15)
+
     except ValueError as e:
         messagebox.showerror("Invalid Input", f"Error: {e}")
 
-def run_app():
+def free_metrics_window():
     window = tkinter.Tk()
     window.title("Trading Entry") #Use App Name Later?
 
@@ -94,7 +106,78 @@ def run_app():
 
     submit_button = tkinter.Button(frame, text="Submit",command=lambda: submit_data(
         capital_entry, fees_entry, leverage_entry, entry_entry, exit_entry, direction_combobox, risk_label_entry))
-    submit_button.grid(row=1,column=0, sticky="news", padx=20,pady=20)
+    submit_button.grid(row=1,column=0, sticky="e", padx=20,pady=20)
 
+    help_button = tkinter.Button(frame, text="Help", command=lambda: help_window(help_text))
+    help_button.grid(row=1, column=0, sticky="w", padx=20,pady=20)
 
     window.mainloop()
+
+'''def login_window():
+    window = tkinter.Tk()
+    window.title("Login") 
+
+    frame = tkinter.Frame(window)
+    frame.pack()
+
+    username = username_entry.get()
+    password = password_entry.get()
+
+    user = get_user(username, password)
+    if user:
+        root.destroy()  # close login window
+        if user['subscribed']:
+            open_subscriber_window(user)
+        else:
+            free_metrics_window(user)
+    else:
+        messagebox.showerror("Login Failed", "Invalid username or password")
+
+    root = tk.Tk()
+    root.title("Login")
+
+    tk.Label(root, text="Username:").pack()
+    username_entry = tk.Entry(root)
+    username_entry.pack()
+
+    tk.Label(root, text="Password:").pack()
+    password_entry = tk.Entry(root, show="*")
+    password_entry.pack()
+
+    tk.Button(root, text="Login", command=login).pack()
+
+def show_trades_window():
+    window = tkinter.Tk()
+    window.title("Trade Log") 
+
+    frame = tkinter.Frame(window)
+    frame.pack()
+
+    cursor.excute("SELECT * FROM trades WHERE user=?", (current_user,))
+    rows = cursor.fetchall()
+
+    history_window = tk.Toplevel()
+    history_window.title("Trade History")
+
+    tree = ttk.Treeview(history_window, columns=(trade), show="headings")
+    for col in tree["columns"]:
+        tree.heading(col, text=col)
+    tree.pack(fill="both", expand=True)
+
+    for row in rows:
+        tree.insert("", "end", values=row[2:])
+'''   
+
+# def csv_input_window():
+def help_window(help_text):
+    window = tkinter.Tk()
+    window.title("Help") 
+
+    frame = tkinter.Frame(window)
+    frame.pack()
+
+    help_text_frame = tkinter.LabelFrame(frame, text="Help")
+    help_text_frame.grid(row=0, column=0, padx=20, pady=20)
+
+    help_label = tkinter.Label(help_text_frame, text=help_text, justify="center", wraplength=350)
+    help_label.grid(padx=20, pady=20)
